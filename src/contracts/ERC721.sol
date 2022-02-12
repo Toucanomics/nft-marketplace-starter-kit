@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract ERC721 {
+import 'src/contracts/ERC165.sol';
+
+contract ERC721 is ERC165 {
     
     //transfer event
 
@@ -63,6 +65,7 @@ contract ERC721 {
     }
 
     function transferFrom(address _from, address _to, uint256 _tokenId) public {
+        require(isApprovedOrOwner(msg.sender, _tokenId));
         _transferFrom(_from, _to, _tokenId);
     }
 
@@ -76,11 +79,17 @@ contract ERC721 {
         require(_to != owner, 'Error - approval to current owner');
         require(msg.sender == owner, 'Error - current caller is not the owner');
         _tokenApprovals[tokenId] = _to;
-
         emit Approval(owner, _to, tokenId);
     }
-}
 
+
+    function isApprovedOrOwner(address spender, uint256 tokenId) internal view returns(bool)  {
+        require(_exists(tokenId), 'token does not exist');
+        address owner = ownerOf(tokenId);
+        return(spender == owner);
+    }
+
+}
 
 
 
